@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   devIndicators: false,
   async rewrites() {
-    return [{ source: "/test", destination: "http://localhost:5000/test" }];
+    return [{ source: "/signup", destination: "http://localhost:5000/signup" }];
   },
 };
 
