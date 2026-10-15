@@ -70,8 +70,15 @@ async function SubmitSignup(username, password, setAlert) {
         });
 
         // Keep your cookie logic for when the backend returns a token.
-        if (data.sigionpex) {
-            document.cookie = `sigionpex_cookie=${encodeURIComponent(data.sigionpex)}; path=/; SameSite=Lax`;
+        if (data.sigionpex && data.end_time) {
+            const expiryDate = new Date(data.end_time);
+
+            if (!isNaN(expiryDate.getTime()) && expiryDate > new Date()) {
+                document.cookie =
+                    `sigionpex_cookie=${encodeURIComponent(data.sigionpex)}; ` +
+                    `expires=${expiryDate.toUTCString()}; ` +
+                    `path=/; SameSite=Lax`;
+            }
         }
 
         console.log(data);

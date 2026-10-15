@@ -3,6 +3,7 @@ from flask_cors import CORS
 import hashlib
 from enum import Enum
 import mariadb
+from datetime import datetime, timedelta
 
 # PROJECT ENUMS
 class STATUS_CODE(Enum):
@@ -93,6 +94,62 @@ def signup():
 
 # Set Security Cookie
         cursor.execute(
+            "SELECT id FROM users WHERE username = ? AND password = ?",
+            (username, HashedPassword)
+        )
+        g_user = cursor.fetchone()
+
+        if g_user is None:
+            print("User not found!")
+        else:
+            user_id = g_user[0]
+
+            print("Finding Existing Cookies")
+            print("USERID SEARCHED FOR:", user_id)
+
+            cursor.execute(
+                """
+                SELECT sessionid, create_time, end_time, cookie
+                FROM sessioncookies
+                WHERE user_id = ?
+                """,
+                (user_id,)
+            )
+
+            sessioncookie_data = cursor.fetchone()
+
+            if sessioncookie_data is not None:
+                print("Session Cookie Data found!")
+
+                # The cookie is the fourth selected column (index 3)
+                final_cookie = sessioncookie_data[3]
+                end_time = sessioncookie_data[2]
+
+            else:
+                print("Creating new session cookies...")
+
+                create_time = datetime.now()
+                end_time = create_time + timedelta(days=30)
+
+                # Generate a random session token
+                import secrets
+                NewCookie = secrets.token_urlsafe(32)
+
+                cursor.execute(
+                    """
+                    INSERT INTO sessioncookies
+                        (user_id, create_time, end_time, cookie)
+                    VALUES (?, ?, ?, ?)
+                    """,
+                    (user_id, create_time, end_time, NewCookie)
+                )
+
+                conn.commit()
+
+                final_cookie = NewCookie
+                print("Session cookie created successfully!")
+        """
+        cursor.execute(
             "SELECT * FROM users WHERE username = ? AND password = ?",
             (username, HashedPassword)
         )
@@ -116,7 +173,7 @@ def signup():
             )
             
             conn.commit()
-
+        """
     except mariadb.Error as e:
         conn.rollback()
         print("DATABASE ERROR:", e)
@@ -130,7 +187,8 @@ def signup():
     final_return = {
         "status": final_status.value,
         "message": final_msg,
-        "sigionpex": "DO_NOT_SHARE_WITH_ANYONE_AN_EPIC_GAMES_EMPLOYEE_WOULD_NEVER_ASK_FOR_YOUR_PASSWORD_" + final_cookie,
+        "sigionpex": final_cookie,
+        "end_time": end_time.isoformat() if end_time else None
     }
 
     return final_return
