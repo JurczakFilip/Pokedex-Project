@@ -194,6 +194,78 @@ def signup():
     return final_return
 
 if __name__ == "__main__":
+    # Check if database has tables required to run
+    try:
+        print("[glock] Establishing a connection to database...")
+        cursor = conn.cursor()
+        
+        if cursor:
+            print("[glock] Connection established!")
+
+            # Check if required tables exist
+            # User Table Check
+            cursor.execute("""
+            SELECT EXISTS (
+                SELECT 1
+                FROM information_schema.tables
+                WHERE table_schema = 'pokedex_db'
+                AND table_name = 'users'
+            ) AS table_exists;
+            """)
+            users_result = cursor.fetchone()
+
+            if users_result[0]:
+                print("[glock] Users table Found!")
+            else:
+                print("[glock] Failed to locate Users table...")
+                print("[glock] Creating users table...")
+                cursor.execute("""
+                CREATE TABLE users (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    username VARCHAR(20) NOT NULL,
+                    password VARCHAR(255) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                );
+                """)
+                conn.commit()
+
+            # sessioncookie Table Check
+            cursor.execute("""
+            SELECT EXISTS (
+                SELECT 1
+                FROM information_schema.tables
+                WHERE table_schema = 'pokedex_db'
+                AND table_name = 'sessioncookies'
+            ) AS table_exists;
+            """)
+            sessioncookies_result = cursor.fetchone()
+            if sessioncookies_result[0]:
+                print("[glock] Sessioncookies table Found!")
+            else:
+                print("[glock] Failed to locate Sessioncookies table...")
+                print("[glock] Creating Sessioncookies table...")
+                cursor.execute("""
+                    CREATE TABLE sessioncookies (
+                        sessionid INT AUTO_INCREMENT PRIMARY KEY,
+                        user_id INT NOT NULL,
+                        create_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        end_time TIMESTAMP NULL DEFAULT NULL,
+                        cookie VARCHAR(256),
+
+                        CONSTRAINT fk_sessioncookies_user
+                            FOREIGN KEY (user_id)
+                            REFERENCES users(id)
+                    );
+                """)
+                conn.commit()
+        else:
+            print("[glock] Failed to connect to database...")
+    except mariadb.Error as e:
+        print("[glock] Failed to verify database: ", e)
+        conn.rollback()
+    finally:
+        cursor.close()
+
     app.run(port=5000, debug=True)
 
 # Don't close conn here; app.run() blocks while Flask is running
