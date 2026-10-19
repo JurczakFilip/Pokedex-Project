@@ -1,5 +1,4 @@
 import CRTWarp from '@/components/ReactBits/Backgrounds/CRTWRAP/crtwrap'
-import Navbar from '@/components/core/navbar'
 import { RandomPokemon } from '@/components/pokeapi/pokeapi'
 import { Cross } from 'lucide-react';
 
@@ -8,8 +7,6 @@ export default async function Home() {
 
   return (
     <div>
-      <Navbar />
-
       <section
         id="hero"
         className="relative min-h-screen overflow-hidden flex items-center justify-center"
@@ -41,7 +38,7 @@ export default async function Home() {
           />
         </div>
 
-        <div className="relative z-10 text-center">
+        <div className="relative z-10 text-center text-white">
           <div className="max-w-md">
             <h1 className="text-5xl font-bold">
               Welcome to the Pokedex Project
@@ -61,14 +58,14 @@ export default async function Home() {
       </section>
       <section id="api" className="flex w-full h-[500px] items-center justify-center">
         {SelectedPokemon && (
-          <div className="card bg-base-200 w-96 shadow-sm">
+          <div className="card bg-base-300 w-96 shadow-sm">
           <figure>
             <img
               src={SelectedPokemon.sprites.front_default}
               alt={SelectedPokemon.name}
               className='h-[144px]'/>
           </figure>
-          <div className="card-body bg-base-100">
+          <div className="card-body bg-base-200">
             <h2 className="card-title justify-between">
               {SelectedPokemon.name[0].toUpperCase() + SelectedPokemon.name.slice(1)}
               <div className="badge badge-secondary">{SelectedPokemon.stats.hp} <Cross size={15}/></div>
