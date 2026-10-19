@@ -45,6 +45,8 @@ def signup():
     final_status = STATUS_CODE.UNDEFINED
     final_msg = "Failed before any SQL was ran."
     final_cookie = ""
+    final_redirect = "None"
+    end_time = None
     g_user = 0
 
     try:
@@ -61,6 +63,7 @@ def signup():
 
             final_status = STATUS_CODE.SUCCESS
             final_msg = f"Successfully Logged in as {username}!"
+            final_redirect = "/"
             g_user = user
         else:
             print("USER NOT FOUND, CREATING ACCOUNT!")
@@ -91,6 +94,7 @@ def signup():
 
                 final_status = STATUS_CODE.SUCCESS
                 final_msg = f"Successfully created your account as {username}!"
+                final_redirect = "/"
 
 # Set Security Cookie
         cursor.execute(
@@ -188,10 +192,16 @@ def signup():
         "status": final_status.value,
         "message": final_msg,
         "sigionpex": final_cookie,
-        "end_time": end_time.isoformat() if end_time else None
+        "end_time": end_time.isoformat() if end_time else None,
+        "Redirect": final_redirect
     }
 
     return final_return
+
+@app.route("/verifycookie")
+def verifycookie():
+    cookie = request.args.get("sigionpex")
+    print("Cookie:", cookie)
 
 if __name__ == "__main__":
     # Check if database has tables required to run
@@ -268,4 +278,3 @@ if __name__ == "__main__":
 
     app.run(port=5000, debug=True)
 
-# Don't close conn here; app.run() blocks while Flask is running

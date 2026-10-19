@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from 'next/navigation'
+import { VerifyCookie } from '@/lib/auth'
 
-async function SubmitSignup(username, password, setAlert) {
+async function SubmitSignup(username, password, setAlert, router) {
     try {
         const response = await fetch(
             `http://localhost:5000/signup?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
@@ -83,6 +85,18 @@ async function SubmitSignup(username, password, setAlert) {
 
         console.log(data);
 
+        if (data?.Redirect && data.Redirect != "None")
+        {
+            console.log("REDIRECT!", data.Redirect)
+            await setTimeout(function()
+            {
+                router.push(data.Redirect)
+            }, 1000);
+        }
+        else {
+            console.log("No redirect...")
+        }
+
     } catch (error) {
         setAlert({
             className: "alert-error",
@@ -102,6 +116,8 @@ async function SubmitSignup(username, password, setAlert) {
 }
 
 export default function Signup() {
+    const router = useRouter();
+
     const [alert, setAlert] = useState({
         visible: false,
         className: "alert-info",
@@ -114,8 +130,10 @@ export default function Signup() {
 
     function handleSubmit(event) {
         event.preventDefault();
-        SubmitSignup(username, password, setAlert);
+        SubmitSignup(username, password, setAlert, router);
     }
+
+    VerifyCookie();
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center gap-4">
