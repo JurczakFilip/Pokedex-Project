@@ -21,6 +21,14 @@ conn = mariadb.connect(
     database="pokedex_db",
 )
 
+# HELPER FUNCTIONS
+def formatToPublicData(userData):
+    return {
+        "username": userData[1],
+        "created_at": userData[3]
+    }
+    
+
 # FLASK
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:3000"])
@@ -201,7 +209,96 @@ def signup():
 @app.route("/verifycookie")
 def verifycookie():
     cookie = request.args.get("sigionpex")
-    print("Cookie:", cookie)
+    final_status = STATUS_CODE.UNDEFINED
+
+    #Find Cookie
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT user_id, cookie, end_time FROM sessioncookies WHERE cookie = ?",
+            (cookie,)
+        )
+        g_cookie = cursor.fetchone()
+        if g_cookie:
+            print("Cookie Data Found:", g_cookie)
+            #Check if cookie is expired, if so set cookie to null & send error.
+            if g_cookie[2] < datetime.now():
+                print("Cookie has been expired...\n resetting users cookie.")
+                cursor.execute(
+                    "UPDATE sessioncookies SET cookie = ? WHERE cookie = ?",
+                    (None, cookie)
+                )
+                            
+                conn.commit()
+            else:
+                print("Valid Cookie")
+                final_status = STATUS_CODE.SUCCESS
+
+            final_status = STATUS_CODE.SUCCESS
+        else:
+            print("Failed to find cookie data:", g_cookie)
+            final_status = STATUS_CODE.ERROR
+    except:
+        print("Failed to find cookie data OR sql error.")
+        final_status = STATUS_CODE.ERROR
+    finally:
+        cursor.close()
+
+    return {
+        "status": final_status.value
+    }
+
+@app.route('/getuser')
+def getuser():
+    final_status = STATUS_CODE.UNDEFINED
+    final_user = None
+    cookie = request.args.get("sigionpex")
+    
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT user_id, cookie, end_time FROM sessioncookies WHERE cookie = ?",
+                (cookie,)
+        )
+        g_cookie = cursor.fetchone()
+
+        if g_cookie:
+            print("Cookie Data Found:", g_cookie)
+            #Check if cookie is expired, if so set cookie to null & send error.
+            if g_cookie[2] < datetime.now():
+                print("Cookie has been expired...\n resetting users cookie.")
+                cursor.execute(
+                    "UPDATE sessioncookies SET cookie = ? WHERE cookie = ?",
+                    (None, cookie)
+                )
+                                    
+                conn.commit()
+            else:
+                print("Valid Cookie")
+
+            #Return user data from cookies user_id
+            cursor.execute(
+            "SELECT * FROM users WHERE id = ?",
+                (g_cookie[0],)
+            )
+            g_user = cursor.fetchone()
+            if g_user:
+                print("FOUND USER FROM COOKIE:", g_user)
+                final_user = formatToPublicData(g_user)
+            else:
+                print("Failed to find user from cookie!!!")
+        else:
+            print("Failed to find cookie data:", g_cookie)
+            final_status = STATUS_CODE.ERROR
+    except:
+        print("getuser ERROR!")
+    finally:
+        cursor.close()
+
+    return {
+        "status": final_status.value,
+        "UserData": final_user
+    }
 
 if __name__ == "__main__":
     # Check if database has tables required to run

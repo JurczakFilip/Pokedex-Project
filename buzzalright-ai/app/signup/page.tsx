@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from 'next/navigation'
 import { VerifyCookie } from '@/lib/auth'
 
@@ -133,7 +133,14 @@ export default function Signup() {
         SubmitSignup(username, password, setAlert, router);
     }
 
-    VerifyCookie();
+    const hasRun = useRef(false);
+
+    useEffect(() => {
+        if (hasRun.current) return;
+        hasRun.current = true;
+
+        VerifyCookie();
+    }, []);
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center gap-4">

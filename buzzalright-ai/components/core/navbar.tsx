@@ -1,5 +1,19 @@
-export default function Navbar()
-{
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+import { GetUser, type User } from "@/lib/auth";
+import { UserRound } from "lucide-react";
+
+export default function Navbar() {
+    const [user, setUser] = useState<User | null>(null);
+    const hasRun = useRef(false);
+
+    useEffect(() => {
+        if (hasRun.current) return;
+        hasRun.current = true;
+
+        GetUser().then(setUser);
+    }, []);
 
     return (
         <nav className="w-full h-[80px] bg-background/80 backdrop-blur-sm sticky top-0 z-50">
@@ -8,9 +22,13 @@ export default function Navbar()
                     Pokedex Project
                 </h1>
                 <div className="mr-5">
-                    <a href="/login"> 
-                    <button className="btn btn-dash">Login</button>
-                    </a>
+                    {user ? (
+                        <a href="/dashboard"><div className="flex justify-between items-center gap-2">{user.username}<UserRound size={16}/></div></a>
+                    ) : (
+                        <a href="/login">
+                            <button className="btn btn-dash">Login</button>
+                        </a>
+                    )}
                 </div>
             </div>
         </nav>

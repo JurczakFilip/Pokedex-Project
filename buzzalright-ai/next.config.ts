@@ -6,7 +6,8 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       { source: "/signup", destination: "http://localhost:5000/signup" }, 
-      { source: "/verifycookie", destination: "http://localhost:5000/verifycookie"}
+      { source: "/verifycookie", destination: "http://localhost:5000/verifycookie"},
+      { source: "/getuser", destination: "http://localhost:5000/getuser"}
     ];
   },
 };
