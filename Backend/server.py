@@ -24,6 +24,7 @@ conn = mariadb.connect(
 # HELPER FUNCTIONS
 def formatToPublicData(userData):
     return {
+        "id": userData[0],
         "username": userData[1],
         "created_at": userData[3]
     }

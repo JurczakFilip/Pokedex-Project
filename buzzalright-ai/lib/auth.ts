@@ -48,6 +48,7 @@ export async function VerifyCookie()
 }
 
 export type User = {
+    id: number;
     username: string;
     created_at: string;
 };
@@ -58,7 +59,7 @@ export async function GetUser(): Promise<User | null>
     if (cookie)
     {
         try
-        {
+        {   
             const response = await fetch(
                 `/getuser?sigionpex=${encodeURIComponent(cookie)}`
             );
@@ -75,12 +76,18 @@ export async function GetUser(): Promise<User | null>
         catch (err)
         {
             console.log("[glock] ERROR GetUser(): ", err);
+            window.location.replace("/");
             return null;
         }
     }
     else
     {
         console.log("[glock] cookie not found, didnt search for user.");
+        const pathname = typeof window !== "undefined" ? window.location.pathname : "";
+        if (!["/", "/login", "/signup", ""].includes(pathname)) {
+            window.location.replace("/");
+        }
+
         return null;
     }
 }

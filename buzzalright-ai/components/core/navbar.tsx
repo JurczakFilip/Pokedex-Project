@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { GetUser, type User } from "@/lib/auth";
-import { LayoutDashboard, UserRound, UserRoundArrowLeft } from "lucide-react";
+import { LayoutDashboard, LogOut, UserRound, UserRoundArrowLeft } from "lucide-react";
 
 export default function Navbar() {
     const [user, setUser] = useState<User | null>(null);
@@ -51,7 +51,8 @@ export default function Navbar() {
                 (showProfile && user) && (
                     <div className="card absolute right-0 top-full bg-background/80 backdrop-blur-sm z-50 w-75 shadow-sm p-1 gap-y-1">
                         <a href="/dashboard"><button className="btn btn-neutral w-full justify-start"><LayoutDashboard size={16}/>Dashboard</button></a>
-                        <a href="/profile"><button className="btn btn-neutral w-full justify-start"><UserRoundArrowLeft size={16}/>Profile</button></a>
+                        <a href="/profile"><button className="btn btn-neutral w-full justify-start"><UserRound size={16}/>Profile</button></a>
+                        <a href="/logout"><button className="btn btn-error w-full justify-start"><LogOut size={16} className="-scale-x-100"/>Logout</button></a>
                         <div className="flex justify-between">
                             <p>Theme</p>
                             <input
