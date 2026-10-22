@@ -34,9 +34,7 @@ export default function Navbar() {
     return (
         <nav className="relative w-full h-[80px] bg-background/80 backdrop-blur-sm sticky top-0 z-50">
             <div className="flex justify-between items-center h-full">
-                <h1 className="card-title ml-5 font-bold text-2xl">
-                    Pokedex Project
-                </h1>
+                <a className="card-title ml-5 font-bold text-2xl" href="/"><button>Pokedex Project</button></a>
                 <div className="mr-5">
                     {user ? (
                         <button onClick={() => setShowProfile(prev => !prev)} className="flex justify-between items-center gap-2">{user.username}<UserRound size={16} /></button>

@@ -200,7 +200,7 @@ export default function Home() {
             >
               <input
                 type="text"
-                className="input join-item w-55"
+                className="input join-item w-100"
                 placeholder="Search Pokémon by name or ID"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
